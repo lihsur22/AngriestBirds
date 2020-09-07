@@ -8,6 +8,7 @@ var box1, pig1,pig3;
 var backgroundImg,platform;
 var bird, slingshot;
 var score;
+var mx, my;
 
 var gameState = "onSling";
 
@@ -24,7 +25,7 @@ function setup(){
 
 
     ground = new Ground(600,height,1200,20);
-    platform = new Ground(150, 305, 300, 170);
+    platform = new Ground(150, 305, 300, 175);
 
     box1 = new Box(700,320,70,70);
     box2 = new Box(920,320,70,70);
@@ -47,11 +48,12 @@ function setup(){
     slingshot = new SlingShot(bird.body,{x:200, y:50});
 }
 
-function draw(){
+function draw() {
     if(backgroundImg)
     background(backgroundImg);
+
     Engine.update(engine);
-    //strokeWeight(4);
+
     box1.display();
     box2.display();
     ground.display();
@@ -71,29 +73,43 @@ function draw(){
 
     bird.display();
     platform.display();
-    //log6.display();
+    
     slingshot.display();
 
-    fill("whhite");
+    mx = mouseX;
+    my = mouseY;
+
+    //console.log(bird.body.position);\\
+
+    fill("white");
     textSize(20);
     text("Score " + score,600,50);
 }
 
-function mouseDragged(){
-    if (gameState!=="launched"){
-        Matter.Body.setPosition(bird.body, {x: mouseX , y: mouseY});
+function mouseDragged() {
+    if (gameState!=="launched" && mx < 210 && mx > 20 && my < 220 && my > -10)
+    {
+        Matter.Body.setPosition(bird.body, {x: mx , y: my});
     }
 }
 
 
-function mouseReleased(){
-    slingshot.fly();
-    gameState = "launched";
+function mouseReleased() {
+    if(bird.body.position.x < 200) 
+    {
+        slingshot.fly();
+        gameState = "launched";
+    }
 }
 
-function keyPressed(){
-    if(keyCode === 32){
-       // slingshot.attach(bird.body);
+function keyPressed() {
+    if(keyCode === 32)
+    {
+       slingshot.attach(bird.body);
+       Matter.Body.setPosition(bird.body, {x:200, y:60});
+       gameState="";
+       bird.trajectory = [];
+       Matter.Body.setVelocity(bird.body, {x:0, y:0});
     }
 }
 
@@ -105,9 +121,11 @@ async function getTime() {
     console.log(time);
     var hour = time.slice(11,13);
     console.log(hour);
-    if(hour >= 06 && hour <= 14) {
+    if(hour >= 06 && hour <= 14)
+    {
         bg = "sprites/bg.png";
-    } else {
+    } else
+    {
         bg = "sprites/bg2.jpg";
     }
     backgroundImg = loadImage(bg);
